@@ -8,38 +8,22 @@
 
 using namespace std;
 
-// CABE�ALHOS DE FUN��ES
-int cadastrar_cliente(string, string);
-int cadastrar_funcionario(string, int);
-int cadastrar_quarto(int, int);
-int cadastrar_estadia(string, int, int);
-int finalizar_estadia(int, int);
-int pesquisar_pessoa(int, string);
-int estadias_cliente(int, string);
-int gerar_id();
-
-// CABEÇALHOS DE PROCEDIMENTOS
-void salvar_quartos(const vector<Quarto>& quartos);
-vector<Quarto> carregar_quartos();
-void salvar_funcionarios(const vector<Funcionario>& funcionarios);
-vector<Funcionario> carregar_funcionarios();
-
 // CLASSES
 class Cliente {
 public:
     Cliente(int id, const string& nome, const string& idade) : id(id), nome(nome), idade(idade) {}
 
-    // M�todos getters
+    // Getters
     int getId() const { return id; }
     string getNome() const { return nome; }
     string getIdade() const { return idade; }
 
-    // M�todo para salvar cliente em um arquivo
+    // Salvar cliente em um arquivo
     void salvar(ofstream& arquivo) const {
         arquivo << id << " " << nome << " " << idade << "\n";
     }
 
-    // M�todo carregar cliente de um arquivo
+    // Carregar cliente de um arquivo
     static Cliente carregar(ifstream& arquivo) {
         int id;
         string nome;
@@ -124,22 +108,68 @@ private:
 };
 
 class Estadia {
-private:
 public:
+    Estadia(const string& nome_cliente, int andar_quarto, int numero_quarto)
+        : nome_cliente(nome_cliente), andar_quarto(andar_quarto), numero_quarto(numero_quarto) {}
+
+    // Métodos getters
+    string getNomeCliente() const { return nome_cliente; }
+    int getAndarQuarto() const { return andar_quarto; }
+    int getNumeroQuarto() const { return numero_quarto; }
+
+    // Método para salvar estadia em arquivo
+    void salvar(ofstream& arquivo) const {
+        arquivo << nome_cliente << " " << andar_quarto << " " << numero_quarto << "\n";
+    }
+
+    // Método estático para carregar estadia do arquivo
+    static Estadia carregar(ifstream& arquivo) {
+        string nome_cliente;
+        int andar_quarto, numero_quarto;
+        arquivo >> nome_cliente >> andar_quarto >> numero_quarto;
+        return Estadia(nome_cliente, andar_quarto, numero_quarto);
+    }
+
+private:
+    string nome_cliente;
+    int andar_quarto;
+    int numero_quarto;
 };
 
-// Vetores para armazenar os objetos das classes usando a biblioteca <vector>, vector.push_back() para adicionar ao final de um vetor
+
+
+
+// CABEÇALHOS
+void cadastrar_cliente(string, string);
+void cadastrar_funcionario(string, int);
+void cadastrar_quarto(int, int);
+void cadastrar_estadia(string, int, int);
+
+void finalizar_estadia(int, int);
+int pesquisar_pessoa(int, string);
+int estadias_cliente(int, string);
+int gerar_id();
+
+void salvar_clientes(const vector<Cliente>& clientes);
+void salvar_quartos(const vector<Quarto>& quartos);
+void salvar_funcionarios(const vector<Funcionario>& funcionarios);
+void salvar_estadias(const vector<Estadia>& estadias);
+
+
+// VETORES
 vector<Cliente> clientes;
 vector<Funcionario> funcionarios;
 vector<Quarto> quartos;
 vector<Estadia> estadias;
 
-// Fun��o para gerar um ID aleatorio de 20 digitos
+
+
+// Função para gerar um ID aleatório de 20 dígitos
 int gerar_id() {
     int digitos = 20;
     int random_number = 0;
     for (int i = 0; i < digitos; i++) {
-        random_device rd;  // Obt�m um seed aleat�rio da melhor fonte dispon�vel
+        random_device rd;  // Obtém um seed aleatório da melhor fonte disponível
         mt19937 gen(rd()); // Usa o seed para inicializar o gerador mersenne_twister_engine
         uniform_int_distribution<> dis(0, 9);
         random_number = random_number * 10 + dis(gen);
@@ -147,12 +177,11 @@ int gerar_id() {
     return random_number;
 }
 
-// Fun��o para cadastrar um novo cliente
-int cadastrar_cliente(string nome, string idade) {
+// Função para cadastrar um novo cliente
+void cadastrar_cliente(string nome, string idade) {
     int id = gerar_id();
     Cliente novo_cliente(id, nome, idade);
     clientes.push_back(novo_cliente);
-    return id;
 }
 
 void salvar_clientes(const vector<Cliente>& clientes) {
@@ -180,14 +209,18 @@ vector<Cliente> carregar_clientes() {
     return clientes_carregados;
 }
 
+
+
+
+
+
 // Função para cadastrar novos funcionários
-int cadastrar_funcionario(string nome, int salario) {
+void cadastrar_funcionario(string nome, int salario) {
     int id = gerar_id();
     string telefone = "default"; // Ajuste conforme necessário
     string cargo = "default"; // Ajuste conforme necessário
     Funcionario novo_funcionario(id, nome, telefone, cargo, salario);
     funcionarios.push_back(novo_funcionario);
-    return id;
 }
 
 void salvar_funcionarios(const vector<Funcionario>& funcionarios) {
@@ -215,13 +248,16 @@ vector<Funcionario> carregar_funcionarios() {
     return funcionarios_carregados;
 }
 
-// Função para cadastrar novos funcionários
-int cadastrar_quarto(int numero, int quantidade_hospedes) {
+
+
+
+
+// Função para cadastrar novos quartos
+void cadastrar_quarto(int numero, int quantidade_hospedes) {
     double valor_diaria = 0.0; // Defina o valor padrão ou ajuste conforme necessário
     string status = "desocupado"; // Defina o status padrão ou ajuste conforme necessário
     Quarto novo_quarto(numero, quantidade_hospedes, valor_diaria, status);
     quartos.push_back(novo_quarto);
-    return numero;
 }
 
 void salvar_quartos(const vector<Quarto>& quartos) {
@@ -249,5 +285,51 @@ vector<Quarto> carregar_quartos() {
     return quartos_carregados;
 }
 
-#endif // HOTEL_H_INCLUDED
+
+
+
+
+// Função para cadastrar novas estadias
+void cadastrar_estadia(const string& nome_cliente, int andar_quarto, int numero_quarto) {
+    Estadia nova_estadia(nome_cliente, andar_quarto, numero_quarto);
+
+    // Abre o arquivo em modo de append
+    ofstream arquivo("estadias.txt", ios::app);
+    if (arquivo.is_open()) {
+        nova_estadia.salvar(arquivo);
+        arquivo.close();
+        cout << "Estadia cadastrada com sucesso!" << endl;
+    } else {
+        cout << "Erro ao abrir o arquivo de estadias." << endl;
+    }
+}
+
+void salvar_estadias(const vector<Estadia>& estadias) {
+    ofstream arquivo("estadias.txt");
+    if (arquivo.is_open()) {
+        for (const auto& estadia : estadias) {
+            estadia.salvar(arquivo);
+        }
+        arquivo.close();
+    }
+}
+
+// Função para carregar estadias do arquivo
+vector<Estadia> carregar_estadias() {
+    vector<Estadia> estadias_carregadas;
+    ifstream arquivo("estadias.txt");
+    if (arquivo.is_open()) {
+        while (arquivo.peek() != EOF) {
+            Estadia estadia = Estadia::carregar(arquivo);
+            if (arquivo.good()) {
+                estadias_carregadas.push_back(estadia);
+            }
+        }
+        arquivo.close();
+    } else {
+        cout << "Erro ao abrir o arquivo de estadias." << endl;
+    }
+    return estadias_carregadas;
+}
+
 #endif // HOTEL_H_INCLUDED

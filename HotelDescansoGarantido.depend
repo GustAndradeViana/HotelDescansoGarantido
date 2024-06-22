@@ -1,0 +1,13 @@
+# depslib dependency file v1.0
+1719079382 source:c:\users\gpolo\desktop\hoteldescansogarantido\main.cpp
+	<iostream>
+	<string>
+	"hotel.h"
+
+1719080050 c:\users\gpolo\desktop\hoteldescansogarantido\hotel.h
+	<random>
+	<string>
+	<vector>
+	<iostream>
+	<fstream>
+
