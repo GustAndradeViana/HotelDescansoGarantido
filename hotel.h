@@ -5,6 +5,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 using namespace std;
 
@@ -154,6 +155,7 @@ void salvar_clientes(const vector<Cliente>& clientes);
 void salvar_quartos(const vector<Quarto>& quartos);
 void salvar_funcionarios(const vector<Funcionario>& funcionarios);
 void salvar_estadias(const vector<Estadia>& estadias);
+void salvar_dados();
 
 
 // VETORES
@@ -164,26 +166,38 @@ vector<Estadia> estadias;
 
 
 
-// Função para gerar um ID aleatório de 20 dígitos
+// FUNÇÕES E PROCEDIMENTOS PARA CADASTRAR CLIENTE, SALVAR E CARREGAR
 int gerar_id() {
-    int digitos = 20;
-    int random_number = 0;
-    for (int i = 0; i < digitos; i++) {
-        random_device rd;  // Obtém um seed aleatório da melhor fonte disponível
-        mt19937 gen(rd()); // Usa o seed para inicializar o gerador mersenne_twister_engine
-        uniform_int_distribution<> dis(0, 9);
-        random_number = random_number * 10 + dis(gen);
+    ifstream arquivo("clientes.txt");
+    if (!arquivo.is_open()) {
+        return 0;
     }
-    return random_number;
+    string linha;
+    int maior_id = -1;
+    while (getline(arquivo, linha)) {
+        istringstream iss(linha);
+        int id;
+        iss >> id;
+        if (id > maior_id) {
+            maior_id = id;
+        }
+    }
+    arquivo.close();
+    return maior_id + 1;
 }
-
-// Função para cadastrar um novo cliente
 void cadastrar_cliente(string nome, string idade) {
     int id = gerar_id();
     Cliente novo_cliente(id, nome, idade);
-    clientes.push_back(novo_cliente);
-}
 
+    ofstream arquivo("clientes.txt", ios::app);
+    if (arquivo.is_open()) {
+        novo_cliente.salvar(arquivo);
+        arquivo.close();
+        cout << "Cliente cadastrado com sucesso!" << endl;
+    } else {
+        cout << "Erro ao abrir o arquivo de clientes." << endl;
+    }
+}
 void salvar_clientes(const vector<Cliente>& clientes) {
     ofstream arquivo("clientes.txt");
     if (arquivo.is_open()) {
@@ -193,7 +207,6 @@ void salvar_clientes(const vector<Cliente>& clientes) {
         arquivo.close();
     }
 }
-
 vector<Cliente> carregar_clientes() {
     vector<Cliente> clientes_carregados;
     ifstream arquivo("clientes.txt");
@@ -214,15 +227,22 @@ vector<Cliente> carregar_clientes() {
 
 
 
-// Função para cadastrar novos funcionários
+// FUNÇÕES E PROCEDIMENTOS PARA CADASTRAR FUNCIONARIO, SALVAR E CARREGAR
 void cadastrar_funcionario(string nome, int salario) {
     int id = gerar_id();
-    string telefone = "default"; // Ajuste conforme necessário
-    string cargo = "default"; // Ajuste conforme necessário
+    string telefone = "default";
+    string cargo = "default";
     Funcionario novo_funcionario(id, nome, telefone, cargo, salario);
-    funcionarios.push_back(novo_funcionario);
-}
 
+    ofstream arquivo("funcionarios.txt", ios::app);
+    if (arquivo.is_open()) {
+        novo_funcionario.salvar(arquivo);
+        arquivo.close();
+        cout << "Funcionário cadastrado com sucesso!" << endl;
+    } else {
+        cout << "Erro ao abrir o arquivo de funcionários." << endl;
+    }
+}
 void salvar_funcionarios(const vector<Funcionario>& funcionarios) {
     ofstream arquivo("funcionarios.txt");
     if (arquivo.is_open()) {
@@ -232,7 +252,6 @@ void salvar_funcionarios(const vector<Funcionario>& funcionarios) {
         arquivo.close();
     }
 }
-
 vector<Funcionario> carregar_funcionarios() {
     vector<Funcionario> funcionarios_carregados;
     ifstream arquivo("funcionarios.txt");
@@ -252,14 +271,21 @@ vector<Funcionario> carregar_funcionarios() {
 
 
 
-// Função para cadastrar novos quartos
+// FUNÇÕES E PROCEDIMENTOS PARA CADASTRAR QUARTO, SALVAR E CARREGAR
 void cadastrar_quarto(int numero, int quantidade_hospedes) {
-    double valor_diaria = 0.0; // Defina o valor padrão ou ajuste conforme necessário
-    string status = "desocupado"; // Defina o status padrão ou ajuste conforme necessário
+    double valor_diaria = 0.0;
+    string status = "desocupado";
     Quarto novo_quarto(numero, quantidade_hospedes, valor_diaria, status);
-    quartos.push_back(novo_quarto);
-}
 
+    ofstream arquivo("quartos.txt", ios::app);
+    if (arquivo.is_open()) {
+        novo_quarto.salvar(arquivo);
+        arquivo.close();
+        cout << "Quarto cadastrado com sucesso!" << endl;
+    } else {
+        cout << "Erro ao abrir o arquivo de quartos." << endl;
+    }
+}
 void salvar_quartos(const vector<Quarto>& quartos) {
     ofstream arquivo("quartos.txt");
     if (arquivo.is_open()) {
@@ -269,7 +295,6 @@ void salvar_quartos(const vector<Quarto>& quartos) {
         arquivo.close();
     }
 }
-
 vector<Quarto> carregar_quartos() {
     vector<Quarto> quartos_carregados;
     ifstream arquivo("quartos.txt");
@@ -289,11 +314,9 @@ vector<Quarto> carregar_quartos() {
 
 
 
-// Função para cadastrar novas estadias
-void cadastrar_estadia(const string& nome_cliente, int andar_quarto, int numero_quarto) {
+// FUNÇÕES E PROCEDIMENTOS PARA CADASTRAR ESTADIA, SALVAR E CARREGAR
+void cadastrar_estadia(string nome_cliente, int andar_quarto, int numero_quarto) {
     Estadia nova_estadia(nome_cliente, andar_quarto, numero_quarto);
-
-    // Abre o arquivo em modo de append
     ofstream arquivo("estadias.txt", ios::app);
     if (arquivo.is_open()) {
         nova_estadia.salvar(arquivo);
@@ -303,7 +326,6 @@ void cadastrar_estadia(const string& nome_cliente, int andar_quarto, int numero_
         cout << "Erro ao abrir o arquivo de estadias." << endl;
     }
 }
-
 void salvar_estadias(const vector<Estadia>& estadias) {
     ofstream arquivo("estadias.txt");
     if (arquivo.is_open()) {
@@ -313,8 +335,6 @@ void salvar_estadias(const vector<Estadia>& estadias) {
         arquivo.close();
     }
 }
-
-// Função para carregar estadias do arquivo
 vector<Estadia> carregar_estadias() {
     vector<Estadia> estadias_carregadas;
     ifstream arquivo("estadias.txt");
@@ -331,5 +351,55 @@ vector<Estadia> carregar_estadias() {
     }
     return estadias_carregadas;
 }
+
+
+
+
+
+// FUNÇÃO PARA PEGAR AS ESTADIAS DO CLIENTE
+vector<Estadia> estadias_cliente(const string& nome_cliente) {
+    vector<Estadia> estadias_cliente;
+    for (const auto& estadia : estadias) {
+        if (estadia.getNomeCliente() == nome_cliente) {
+            estadias_cliente.push_back(estadia);
+        }
+    }
+    return estadias_cliente;
+}
+
+
+
+// FUNÇÃO PARA PESQUISAR PESSOA PELO ID
+int pesquisar_pessoa(int id, string tipo_pessoa) {
+    if (tipo_pessoa == "cliente") {
+        for (size_t i = 0; i < clientes.size(); ++i) {
+            if (clientes[i].getId() == id) {
+                return i;
+            }
+        }
+    } else if (tipo_pessoa == "funcionario") {
+        for (size_t i = 0; i < funcionarios.size(); ++i) {
+            if (funcionarios[i].getId() == id) {
+                return i;
+            }
+        }
+    }
+    return -1;
+}
+
+
+
+// FUNÇÃO PARA FINALIZAR UMA ESTADIA
+void finalizar_estadia(int andar_quarto, int numero_quarto) {
+    for (auto it = estadias.begin(); it != estadias.end(); ++it) {
+        if (it->getAndarQuarto() == andar_quarto && it->getNumeroQuarto() == numero_quarto) {
+            estadias.erase(it);
+            cout << "Estadia finalizada com sucesso!" << endl;
+            return;
+        }
+    }
+    cout << "Estadia não encontrada." << endl;
+}
+
 
 #endif // HOTEL_H_INCLUDED
