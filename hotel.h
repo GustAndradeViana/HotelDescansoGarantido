@@ -8,6 +8,7 @@
 #include <sstream>
 #include <ctime>
 #include <iomanip>
+#include <locale>
 
 using namespace std;
 
@@ -299,6 +300,11 @@ vector<Cliente> carregar_clientes();
 vector<Funcionario> carregar_funcionarios();
 vector<Quarto> carregar_quartos();
 vector<Estadia> carregar_estadias();
+void inicializar_locale()
+{
+    setlocale(LC_ALL, "portuguese");
+}
+
 
 // VETORES
 vector<Cliente> clientes = carregar_clientes();

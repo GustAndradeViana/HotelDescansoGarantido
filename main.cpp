@@ -6,6 +6,7 @@
 int main()
 {
     setlocale(LC_ALL, "portuguese");
+    inicializar_locale();
     int op;
     string nome, idade, cargo, telefone, endereco, status, dataEntrada, dataSaida, tipo_pessoa;
     float salario;
