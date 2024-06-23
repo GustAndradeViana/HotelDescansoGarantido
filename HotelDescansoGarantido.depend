@@ -5,7 +5,7 @@
 	"hotel.h"
 	<locale>
 
-1719172109 c:\users\gpolo\desktop\hoteldescansogarantido\hotel.h
+1719172938 c:\users\gpolo\desktop\hoteldescansogarantido\hotel.h
 	<random>
 	<string>
 	<vector>
@@ -14,5 +14,6 @@
 	<sstream>
 	<ctime>
 	<iomanip>
+	<algorithm>
 	<locale>
 

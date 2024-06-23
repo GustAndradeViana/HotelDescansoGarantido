@@ -10,7 +10,7 @@ int main()
     int op;
     string nome, idade, cargo, telefone, endereco, status, dataEntrada, dataSaida, tipo_pessoa;
     float salario;
-    int numero, qteHospedes, qteDiarias, id_pessoa, pontos;
+    int numero, qteHospedes, qteDiarias, id_pessoa;
     double valorDiaria;
     do
     {
@@ -108,13 +108,10 @@ int main()
             break;
 
         case 8:
-            cout << "Digite o nome do cliente: " << endl;
-            getline(cin, nome);
             cout << "Digite o numero do cliente: " << endl;
             cin >> id_pessoa;
             cin.ignore();
-            pontos = calcular_pontos_fidelidade(nome, id_pessoa);
-            cout << "Pontos de fidelidade do cliente: " << pontos << endl;
+            imprimir_pontos_fidelidade(id_pessoa);
             break;
 
         default:
