@@ -6,24 +6,63 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-
+#include <ctime>
+#include <iomanip>
 
 using namespace std;
 
+// Função para substituir espaços por "-" e vice-versa
+string substituirEspacosPorTracos(const string& texto)
+{
+    string textoFormatado = texto;
+    for (char& c : textoFormatado)
+    {
+        if (c == ' ')
+        {
+            c = '-';
+        }
+    }
+    return textoFormatado;
+}
 
-// FALTA IMPLEMENTAR:
+string substituirTracosPorEspacos(const string& texto)
+{
+    string textoFormatado = texto;
+    for (char& c : textoFormatado)
+    {
+        if (c == '-')
+        {
+            c = ' ';
+        }
+    }
+    return textoFormatado;
+}
 
-// O CALCULO DE PONTOS DE FIDELIDADE
-// CHECAR A DISPONIBILIDADE DE QUARTO NA ESTADIA
-// O CALCULO DE DATA DE ENTRADA E SAIDA PARA O VALOR DA ESTADIA
+// Função para calcular a diferença em dias entre duas datas no formato "YYYY-MM-DD"
+int calcularDiferencaDias(const string& data_inicio, const string& data_fim)
+{
+    tm tm_inicio = {};
+    tm tm_fim = {};
+    istringstream ss_inicio(data_inicio);
+    istringstream ss_fim(data_fim);
+    ss_inicio >> get_time(&tm_inicio, "%Y-%m-%d");
+    ss_fim >> get_time(&tm_fim, "%Y-%m-%d");
 
+    time_t time_inicio = mktime(&tm_inicio);
+    time_t time_fim = mktime(&tm_fim);
+
+    double seconds = difftime(time_fim, time_inicio);
+    int days = seconds / (60 * 60 * 24);
+
+    return days;
+}
 
 // CLASSES
 class Cliente
 {
 public:
     Cliente(int id, const string& nome, const string& endereco, const string& telefone)
-        : id(id), nome(nome), endereco(endereco), telefone(telefone) {}
+        : id(id), nome(substituirEspacosPorTracos(nome)), endereco(substituirEspacosPorTracos(endereco)), telefone(substituirEspacosPorTracos(telefone)) {}
 
     // Getters
     int getId() const
@@ -32,15 +71,15 @@ public:
     }
     string getNome() const
     {
-        return nome;
+        return substituirTracosPorEspacos(nome);
     }
     string getEndereco() const
     {
-        return endereco;
+        return substituirTracosPorEspacos(endereco);
     }
     string getTelefone() const
     {
-        return telefone;
+        return substituirTracosPorEspacos(telefone);
     }
 
     // Salvar cliente em um arquivo
@@ -71,7 +110,7 @@ class Funcionario
 {
 public:
     Funcionario(int id, const string& nome, const string& telefone, const string& cargo, double salario)
-        : id(id), nome(nome), telefone(telefone), cargo(cargo), salario(salario) {}
+        : id(id), nome(substituirEspacosPorTracos(nome)), telefone(substituirEspacosPorTracos(telefone)), cargo(substituirEspacosPorTracos(cargo)), salario(salario) {}
 
     // Getters
     int getId() const
@@ -80,15 +119,15 @@ public:
     }
     string getNome() const
     {
-        return nome;
+        return substituirTracosPorEspacos(nome);
     }
     string getTelefone() const
     {
-        return telefone;
+        return substituirTracosPorEspacos(telefone);
     }
     string getCargo() const
     {
-        return cargo;
+        return substituirTracosPorEspacos(cargo);
     }
     double getSalario() const
     {
@@ -125,7 +164,7 @@ class Quarto
 {
 public:
     Quarto(int numero, int quantidade_hospedes, double valor_diaria, const string& status)
-        : numero(numero), quantidade_hospedes(quantidade_hospedes), valor_diaria(valor_diaria), status(status) {}
+        : numero(numero), quantidade_hospedes(quantidade_hospedes), valor_diaria(valor_diaria), status(substituirEspacosPorTracos(status)) {}
 
     // Getters
     int getNumero() const
@@ -142,7 +181,13 @@ public:
     }
     string getStatus() const
     {
-        return status;
+        return substituirTracosPorEspacos(status);
+    }
+
+    // Setters
+    void setStatus(const string& novo_status)
+    {
+        status = substituirEspacosPorTracos(novo_status);
     }
 
     // Método para salvar quarto
@@ -172,13 +217,13 @@ private:
 class Estadia
 {
 public:
-    Estadia(const string& nome_cliente, int numero_quarto, int codigo, const string& data_entrada, const string& data_saida, int qte_diarias, int id_cliente)
-        : nome_cliente(nome_cliente), numero_quarto(numero_quarto), codigo(codigo), data_entrada(data_entrada), data_saida(data_saida), qte_diarias(qte_diarias), id_cliente(id_cliente) {}
+    Estadia(int id_cliente, int numero_quarto, int codigo, const string& data_entrada, const string& data_saida, int qte_diarias)
+        : id_cliente(id_cliente), numero_quarto(numero_quarto), codigo(codigo), data_entrada(data_entrada), data_saida(data_saida), qte_diarias(qte_diarias) {}
 
     // Getters
     string getNomeCliente() const
     {
-        return nome_cliente;
+        return substituirTracosPorEspacos(nome_cliente);
     }
     string getDataEntrada() const
     {
@@ -208,7 +253,7 @@ public:
     // Método para salvar estadia em arquivo
     void salvar(ofstream& arquivo) const
     {
-        arquivo << nome_cliente << " " << numero_quarto << " " << codigo << " " << data_entrada << " " << data_saida << " " << qte_diarias << " " << id_cliente << "\n";
+        arquivo << id_cliente << " " << numero_quarto << " " << codigo << " " << data_entrada << " " << data_saida << " " << qte_diarias << " " << "\n";
     }
 
     // Método estático para carregar estadia do arquivo
@@ -216,8 +261,8 @@ public:
     {
         string nome_cliente, data_entrada, data_saida;
         int numero_quarto, codigo, qte_diarias, id_cliente;
-        arquivo >> nome_cliente >> numero_quarto >> codigo >> data_entrada >> data_saida >> qte_diarias >> id_cliente;
-        return Estadia(nome_cliente, numero_quarto, codigo, data_entrada, data_saida, qte_diarias, id_cliente);
+        arquivo >> id_cliente >> numero_quarto >> codigo >> data_entrada >> data_saida >> qte_diarias;
+        return Estadia(id_cliente, numero_quarto, codigo, data_entrada, data_saida, qte_diarias);
     }
 
 private:
@@ -234,11 +279,11 @@ private:
 void cadastrar_cliente(const string& nome, const string& endereco, const string& telefone);
 void cadastrar_funcionario(const string& nome, const string& telefone, const string& cargo, double salario);
 void cadastrar_quarto(int numero, int quantidade_hospedes, double valor_diaria, const string& status);
-void cadastrar_estadia(const string& nome_cliente, int numero_quarto, int quantidade_diarias, const string& data_saida, const string& data_entrada);
+void cadastrar_estadia(int id_cliente, int numero_quarto, int quantidade_diarias, const string& data_saida, const string& data_entrada);
 
 void finalizar_estadia(int numero_quarto);
 void pesquisar_pessoa(int id, const string& tipo_pessoa);
-vector<Estadia> estadias_cliente(const string& nome_cliente);
+void imprimir_estadias_cliente(int id_cliente);
 
 void salvar_clientes(const vector<Cliente>& clientes);
 void salvar_quartos(const vector<Quarto>& quartos);
@@ -264,16 +309,16 @@ vector<Estadia> estadias = carregar_estadias();
 
 int buscar_id_cliente(const string& nome_cliente)
 {
+    string nome_formatado = substituirEspacosPorTracos(nome_cliente);
     for (const auto& cliente : clientes)
     {
-        if (cliente.getNome() == nome_cliente)
+        if (cliente.getNome() == nome_formatado)
         {
             return cliente.getId();
         }
     }
     return -1; // Retorna -1 se o cliente não for encontrado
 }
-
 
 // FUNÇÕES E PROCEDIMENTOS PARA CADASTRAR CLIENTE, SALVAR E CARREGAR
 int gerar_id_cliente()
@@ -299,6 +344,7 @@ int gerar_id_cliente()
     return maior_id + 1;
 }
 
+// Função para cadastrar cliente
 void cadastrar_cliente(const string& nome, const string& endereco, const string& telefone)
 {
     int id = gerar_id_cliente();
@@ -308,6 +354,7 @@ void cadastrar_cliente(const string& nome, const string& endereco, const string&
     if (arquivo.is_open())
     {
         novo_cliente.salvar(arquivo);
+        clientes.push_back(novo_cliente); // Adiciona o novo cliente ao vetor de clientes
         arquivo.close();
         cout << "Cliente cadastrado com sucesso!" << endl;
     }
@@ -345,7 +392,7 @@ vector<Cliente> carregar_clientes()
             iss >> id >> nome >> endereco >> telefone;
             if (!iss.fail()) // Verifica se a leitura foi bem-sucedida
             {
-                clientes_carregados.push_back(Cliente(id, nome, endereco, telefone));
+                clientes_carregados.push_back(Cliente(id, substituirTracosPorEspacos(nome), substituirTracosPorEspacos(endereco), substituirTracosPorEspacos(telefone)));
             }
         }
         arquivo.close();
@@ -516,20 +563,20 @@ int gerar_codigo_estadia()
     return maior_id + 1;
 }
 
-void cadastrar_estadia(const string& nome_cliente, int numero_quarto, int quantidade_diarias, const string& data_saida, const string& data_entrada)
+void cadastrar_estadia(int id_cliente, int numero_quarto, int quantidade_diarias, const string& data_saida, const string& data_entrada)
 {
     int codigo_estadia = gerar_codigo_estadia();
-    int id_cliente = buscar_id_cliente(nome_cliente);
     if (id_cliente == -1)
     {
         cout << "Erro: Cliente não encontrado." << endl;
         return;
     }
-    Estadia nova_estadia(nome_cliente, numero_quarto, codigo_estadia, data_entrada, data_saida, quantidade_diarias, id_cliente);
+    Estadia nova_estadia(id_cliente, numero_quarto, codigo_estadia, data_entrada, data_saida, quantidade_diarias);
     ofstream arquivo("estadias.txt", ios::app);
     if (arquivo.is_open())
     {
         nova_estadia.salvar(arquivo);
+        estadias.push_back(nova_estadia); // Adiciona a nova estadia ao vetor de estadias
         arquivo.close();
         cout << "Estadia cadastrada com sucesso!" << endl;
     }
@@ -562,12 +609,12 @@ vector<Estadia> carregar_estadias()
         while (getline(arquivo, linha))
         {
             istringstream iss(linha);
-            string nome_cliente, data_entrada, data_saida;
+            string data_entrada, data_saida;
             int numero_quarto, codigo, qte_diarias, id_cliente;
-            iss >> nome_cliente >> numero_quarto >> codigo >> data_entrada >> data_saida >> qte_diarias >> id_cliente;
+            iss >> id_cliente >> numero_quarto >> codigo >> data_entrada >> data_saida >> qte_diarias;
             if (!iss.fail()) // Verifica se a leitura foi bem-sucedida
             {
-                estadias_carregadas.push_back(Estadia(nome_cliente, numero_quarto, codigo, data_entrada, data_saida, qte_diarias, id_cliente));
+                estadias_carregadas.push_back(Estadia(id_cliente, numero_quarto, codigo, data_entrada, data_saida, qte_diarias));
             }
         }
         arquivo.close();
@@ -577,22 +624,96 @@ vector<Estadia> carregar_estadias()
 
 int calcular_pontos_fidelidade(const string& nome_cliente, int id_cliente)
 {
-    // Implementar lógica de cálculo de pontos de fidelidade
-    return 0;
-}
-
-// FUNÇÃO PARA PEGAR AS ESTADIAS DO CLIENTE
-vector<Estadia> estadias_cliente(const string& nome_cliente)
-{
-    vector<Estadia> estadias_cliente;
+    int pontos = 0;
     for (const auto& estadia : estadias)
     {
-        if (estadia.getNomeCliente() == nome_cliente)
+        if (estadia.getIdCliente() == id_cliente)
         {
-            estadias_cliente.push_back(estadia);
+            pontos += estadia.getQteDiarias();
         }
     }
-    return estadias_cliente;
+    return pontos;
+}
+
+// PROCEDIMENTO PARA IMPRIMIT AS ESTADIAS DO CLIENTE
+void imprimir_estadias_cliente(int id_cliente)
+{
+    vector<Estadia> estadias_cliente_encontradas;
+
+    ifstream arquivo("estadias.txt");
+    if (arquivo.is_open())
+    {
+        string linha;
+        while (getline(arquivo, linha))
+        {
+            istringstream iss(linha);
+            int id_cliente_arquivo, numero_quarto, codigo, qte_diarias;
+            string data_entrada, data_saida;
+            iss >> id_cliente_arquivo >> numero_quarto >> codigo >> data_entrada >> data_saida >> qte_diarias;
+
+            if (id_cliente_arquivo == id_cliente)
+            {
+                Estadia estadia(id_cliente, numero_quarto, codigo, data_entrada, data_saida, qte_diarias);
+                estadias_cliente_encontradas.push_back(estadia);
+            }
+        }
+        arquivo.close();
+
+        // Imprime as estadias encontradas
+        if (!estadias_cliente_encontradas.empty())
+        {
+            cout << "Estadias do cliente com ID " << id_cliente << ":" << endl;
+            for (const auto& estadia : estadias_cliente_encontradas)
+            {
+                cout << "Código da estadia: " << estadia.getCodigo() << endl;
+                cout << "Número do quarto: " << estadia.getNumeroQuarto() << endl;
+                cout << "Data de entrada: " << estadia.getDataEntrada() << endl;
+                cout << "Data de saída: " << estadia.getDataSaida() << endl;
+                cout << "Quantidade de diárias: " << estadia.getQteDiarias() << endl;
+                cout << "---------------------" << endl;
+            }
+        }
+        else
+        {
+            cout << "Nenhuma estadia encontrada para o cliente com ID " << id_cliente << "." << endl;
+        }
+    }
+    else
+    {
+        cout << "Não foi possível abrir o arquivo de estadias." << endl;
+    }
+}
+
+bool verificar_disponibilidade_quarto(int numero_quarto, const string& data_entrada, const string& data_saida)
+{
+    for (const auto& estadia : estadias)
+    {
+        if (estadia.getNumeroQuarto() == numero_quarto)
+        {
+            // Verifica se as datas de entrada e saída não conflitam
+            if ((data_entrada >= estadia.getDataEntrada() && data_entrada <= estadia.getDataSaida()) ||
+                (data_saida >= estadia.getDataEntrada() && data_saida <= estadia.getDataSaida()) ||
+                (data_entrada <= estadia.getDataEntrada() && data_saida >= estadia.getDataSaida()))
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+
+double calcular_valor_estadia(int numero_quarto, const string& data_entrada, const string& data_saida)
+{
+    for (const auto& quarto : quartos)
+    {
+        if (quarto.getNumero() == numero_quarto)
+        {
+            int dias = calcularDiferencaDias(data_entrada, data_saida);
+            return dias * quarto.getValorDiaria();
+        }
+    }
+    return 0.0; // Retorna 0.0 se o quarto não for encontrado
 }
 
 // FUNÇÃO PARA PESQUISAR PESSOA PELO ID E IMPRIMIR OS DADOS
@@ -637,8 +758,17 @@ void finalizar_estadia(int numero_quarto)
     {
         if (it->getNumeroQuarto() == numero_quarto)
         {
+            // Calcular o valor da estadia
+            double valor_estadia = calcular_valor_estadia(numero_quarto, it->getDataEntrada(), it->getDataSaida());
+
+            // Remover a estadia do vetor
             estadias.erase(it);
+
+            // Salvar as estadias atualizadas no arquivo
+            salvar_estadias(estadias);
+
             cout << "Estadia finalizada com sucesso!" << endl;
+            cout << "Valor da estadia: R$ " << fixed << setprecision(2) << valor_estadia << endl;
             return;
         }
     }
