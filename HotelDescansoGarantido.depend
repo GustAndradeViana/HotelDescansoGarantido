@@ -1,11 +1,11 @@
 # depslib dependency file v1.0
-1719171163 source:c:\users\gpolo\desktop\hoteldescansogarantido\main.cpp
+1719172109 source:c:\users\gpolo\desktop\hoteldescansogarantido\main.cpp
 	<iostream>
 	<string>
 	"hotel.h"
 	<locale>
 
-1719171695 c:\users\gpolo\desktop\hoteldescansogarantido\hotel.h
+1719172109 c:\users\gpolo\desktop\hoteldescansogarantido\hotel.h
 	<random>
 	<string>
 	<vector>
@@ -14,4 +14,5 @@
 	<sstream>
 	<ctime>
 	<iomanip>
+	<locale>
 
